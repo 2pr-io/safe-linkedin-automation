@@ -1,0 +1,11 @@
+{
+  "name": "safe-linkedin-automation",
+  "displayName": "Safe LinkedIn Automation",
+  "version": "1.0.0",
+  "description": "Automate LinkedIn with close to zero risk: a scheduled export of your own LinkedIn data, and a local report of the messages you never answered and the new connections you never talked to.",
+  "author": { "name": "2pr.io", "email": "hi@2pr.io", "url": "https://2pr.io" },
+  "homepage": "https://github.com/2pr-io/safe-linkedin-automation",
+  "repository": "https://github.com/2pr-io/safe-linkedin-automation",
+  "license": "MIT",
+  "keywords": ["linkedin", "linkedin-automation", "safe-automation", "networking", "crm", "gdpr", "data-export"]
+}

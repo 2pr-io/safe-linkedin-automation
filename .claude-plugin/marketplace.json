@@ -1,0 +1,11 @@
+{
+  "name": "2pr-io",
+  "owner": { "name": "2pr.io", "email": "hi@2pr.io" },
+  "plugins": [
+    {
+      "name": "safe-linkedin-automation",
+      "source": "./",
+      "description": "Scheduled export of your own LinkedIn data plus a local report of unanswered messages and new connections you never talked to. No bots, no risk to your account."
+    }
+  ]
+}
