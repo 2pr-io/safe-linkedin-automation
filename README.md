@@ -1,18 +1,57 @@
 # Safe LinkedIn Automation
 
-**How to automate LinkedIn without risking your account.** A free, open-source Claude skill that keeps track of your LinkedIn network using only your own data export. No bot ever sends an invite, a message or a comment for you.
+**How to automate LinkedIn without risking your account.**
 
-Most LinkedIn automation tools act *as you* inside LinkedIn: they send connection requests, DMs and comments from your logged-in session. That is what gets accounts restricted, and for most people their LinkedIn account is worth far more than the time those tools save.
+## TL;DR
 
-This skill works *around* LinkedIn instead:
+- LinkedIn has to give you a full copy of your own data: every connection, every message, every invite. It is free and it is a built-in feature.
+- This free, open-source Claude skill **downloads that archive for you every 2 days** (two clicks in your own browser, nothing else), then **shows you what to do with it**:
+  - who you owe a reply, and which new connections never heard from you;
+  - a CRM-ready spreadsheet of your whole network, with message history and a status for every person;
+  - how to enrich it (role, fit, company), and where the line is.
+- No bot ever sends an invite, a message, a like or a comment for you. Everything is read on your machine. Nothing is uploaded.
 
-1. **Export.** Every 2 days, Claude in Chrome opens LinkedIn's own [Download your data](https://www.linkedin.com/mypreferences/d/download-my-data) page and clicks two buttons: download the ready archive, request the next one. It types nothing. If LinkedIn ever asks for a password, a code or a captcha, it stops and tells you.
-2. **First steps with the export.** Small Python scripts read the archive on your machine. Nothing is uploaded anywhere.
-   - a **report** of who you owe a reply and which new connections never heard from you;
-   - a **CRM-ready CSV** of every connection with message history and a relationship status;
-   - guided **enrichment**: function, ideal-customer fit, company domains, and when (not) to look up emails.
+On our founder's account, the first run found **42 people waiting on a reply**, **16 messages never answered** and **291 of 434 new connections who never heard from him**. Across all 9,895 connections, **6,219 had never exchanged a single message** with him.
 
-## What the report shows
+## Why: your network is an asset you are not using
+
+Most people treat LinkedIn connections as a number. But the people are the value: past colleagues, customers, investors, people who reached out once and never heard back.
+
+LinkedIn does not help you keep track. The inbox mixes friends with pitches, there is no "who did I forget" view, and once you pass a few hundred connections you lose the thread. So people reach for automation tools, and that is where accounts get hurt. In a poll we ran, most people valued their LinkedIn access at **$100k+**. That is a lot to bet on a Chrome extension.
+
+The goal of this skill is simple: **know your network and act on it, without putting your account at risk.**
+
+## What is OK and what is not
+
+The line LinkedIn cares about is not "tools vs no tools". It is whether software **acts as you inside LinkedIn**, or **works around it** with official features and a human doing the actual talking.
+
+**Avoid: software acting as you**
+
+- Auto-connect and auto-DM sequences that send invites and messages for you.
+- Extensions that auto-like or auto-comment on posts.
+- Engagement pods that trade likes and comments on a schedule.
+- Scrapers that crawl profiles through your logged-in account.
+- Any service that asks for your LinkedIn password or session cookie.
+
+These are what get reach limited and accounts restricted. LinkedIn's own product leaders have called out pods and automated comments publicly.
+
+**Fine: official features and tools**
+
+- Downloading your own data (the export this skill uses). It exists because privacy law (GDPR) gives you the right to it.
+- Scheduling posts with LinkedIn's scheduler or a tool on LinkedIn's official API. LinkedIn's Sr. Director of Product Management, Rishi Jobanputra, has said publicly that scheduling and posting from third-party tools do not hurt reach.
+- AI that drafts posts or replies that you read, edit and send yourself.
+- Native features: following people with the bell, saved searches, Sales Navigator alerts, exporting your post analytics.
+- Anything you do with your data *after* it leaves LinkedIn: spreadsheets, a CRM, AI analysis.
+
+**Low risk, and why: this skill's export step**
+
+The export step is technically browser automation: Claude in Chrome clicks for you. We keep it as close to a person as possible: two buttons, on a settings page, once every two days, in your own browser, with your own login. It never types into LinkedIn, never visits profiles, never touches your inbox, and stops the moment LinkedIn asks for a password, a code or a captcha. If you would rather not automate even that, the skill gives you the same steps to do by hand.
+
+## What to do with your export
+
+The skill walks you through three first steps.
+
+**1. The report: who is waiting on you**
 
 ```text
 # LinkedIn network report, last 30 days
@@ -28,19 +67,15 @@ This skill works *around* LinkedIn instead:
 ...
 ```
 
-Those are real numbers from the first run on our founder's account.
+- **Owe a reply (warm):** they wrote last and you had talked before. Open questions come first. Start here.
+- **Owe a reply (cold inbound):** people who wrote and never got an answer. Mostly pitches, but scan them.
+- **New connections you never talked to:** one line within a week (not a pitch) goes a long way.
 
-- **Owe a reply (warm):** the other person wrote last and you had talked before. Open questions come first.
-- **Owe a reply (cold inbound):** people who wrote and never got an answer.
-- **New connections you never talked to:** connected in the window, no message either way.
+Claude can draft short replies for the warm list. You send them yourself.
 
-## Your network as a CRM
+**2. Your network as a CRM**
 
-```bash
-python3 skills/linkedin-network-brain/scripts/crm_export.py ~/Downloads/linkedin-archives/ --out linkedin-crm.csv
-```
-
-One row per connection: name, LinkedIn URL, email (when shared), company, position, seniority, connected on, number of messages, last message date, who wrote last, and a status:
+One row per connection: name, LinkedIn URL, email (when the person shares it), company, position, seniority, date connected, number of messages, last message date, who wrote last, and a status:
 
 | status | meaning |
 | --- | --- |
@@ -49,47 +84,51 @@ One row per connection: name, LinkedIn URL, email (when shared), company, positi
 | closed | they wrote last with a "thanks" or an emoji |
 | never talked | no message either way |
 
-On our founder's 9,895 connections: 1,036 "you owe a reply", 2,231 "waiting on them", 409 "closed", 6,219 "never talked". Only 364 shared an email.
+On our founder's 9,895 connections: 1,036 "you owe a reply", 2,231 "waiting on them", 409 "closed", 6,219 "never talked". Only 364 (under 4%) shared an email.
 
-Import it into HubSpot, Attio, Pipedrive, Notion or Google Sheets. Use `linkedin_url` as the unique key, so every new export updates people instead of duplicating them. Then ask Claude to enrich it: function, fit with your ideal customer, company domains. The skill explains when looking up emails is fine and when it is not.
+Import it into HubSpot, Attio, Pipedrive, Notion or Google Sheets. Use the LinkedIn URL as the unique key, so every new export updates people instead of duplicating them.
 
-## Install
+**3. Enrich it, carefully**
 
-**Claude Code**
+- **Role and fit:** Claude tags each person's function (sales, marketing, product...) and, if you describe your ideal customer, whether they fit.
+- **Company:** add the company website for the people who matter; most CRMs fill in size and industry from there.
+- **Emails:** only a few percent share one. Lookup tools exist (Apollo, Hunter, Clay), but use them only for people you already have a relationship with, follow privacy law where you and they live, and never email your whole network.
+
+Never enrich by visiting or scraping LinkedIn profiles. Everything starts from the archive.
+
+## How to set it up
+
+**1. Install the skill**
+
+*Claude Code:*
 
 ```text
 /plugin marketplace add 2pr-io/safe-linkedin-automation
 /plugin install safe-linkedin-automation@2pr-io
 ```
 
-**Claude desktop or claude.ai**
+*Claude desktop or claude.ai:* download `linkedin-network-brain.zip` from the [latest release](https://github.com/2pr-io/safe-linkedin-automation/releases/latest) and upload it under Settings > Capabilities > Skills.
 
-Download `linkedin-network-brain.zip` from the [latest release](https://github.com/2pr-io/safe-linkedin-automation/releases/latest) and upload it under Settings > Capabilities > Skills.
+**2. Ask Claude to set up the export**
 
-Then ask Claude: *"Set up my LinkedIn data export"*, and once you have an archive, *"Who do I owe a reply on LinkedIn?"* or *"Turn my LinkedIn connections into a CRM"*.
+Say *"Set up my LinkedIn data export"*. Claude creates a scheduled task that runs every 2 days. You need [Claude in Chrome](https://claude.com/chrome), signed in to your LinkedIn. Pick the full archive: the report and the CRM need your message history. The first archive arrives by email in about a day.
 
-You need [Claude in Chrome](https://claude.com/chrome) signed in to your LinkedIn for the export, and Python 3 for the report. The script uses only the standard library.
+**3. Use it**
 
-## Run the scripts by hand
+Once you have an archive, ask *"Who do I owe a reply on LinkedIn?"* or *"Turn my LinkedIn connections into a CRM"*.
+
+**Or run the scripts yourself** (Python 3, standard library only):
 
 ```bash
 python3 skills/linkedin-network-brain/scripts/network_report.py ~/Downloads/linkedin-archives/
 python3 skills/linkedin-network-brain/scripts/crm_export.py ~/Downloads/linkedin-archives/ --out linkedin-crm.csv
 ```
 
-Report options: `--days 30`, `--limit 25`, `--out report.md`. It accepts an archive zip, an unzipped archive folder, or a folder of zips (it picks the newest).
+Both accept an archive zip, an unzipped archive folder, or a folder of zips (they pick the newest). Report options: `--days 30`, `--limit 25`, `--out report.md`.
 
-Request the **full** ("larger") archive: the report and the CRM statuses need your message history.
+## Staying visible to your whole network
 
-## Why this is safe
-
-- Downloading your own data is your legal right (GDPR) and a built-in LinkedIn feature.
-- The export clicks the same two buttons you would, every couple of days, in your own browser.
-- No password, cookie or session token leaves your machine. No message, invite, like or comment is ever sent.
-
-## More safe LinkedIn automation
-
-A reply fixes one conversation. Posting regularly keeps your whole network warm. [2pr.io](https://2pr.io) writes LinkedIn posts in your own voice and publishes them through LinkedIn's official API, so there is no automation risk there either. [Start a free trial](https://2pr.io/app/login).
+A reply fixes one relationship. Posting regularly keeps the rest of your network warm, including the people you have never spoken to. [2pr.io](https://2pr.io) writes LinkedIn posts in your own voice and publishes them through LinkedIn's official API, so there is no automation risk there either. [Start a free trial](https://2pr.io/app/login).
 
 ## License
 
