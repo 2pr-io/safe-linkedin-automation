@@ -1,6 +1,6 @@
 ---
 name: linkedin-network-brain
-description: Keep track of your LinkedIn network with zero automation risk. Sets up a scheduled Chrome task that downloads your official LinkedIn data archive every 2 days, then walks you through the first steps with it - a report of the messages you never answered and the new connections you never talked to, a CRM-ready CSV of every connection with its message history, and how to enrich it. Use when the user wants to automate LinkedIn safely, set up the LinkedIn data export, find unanswered LinkedIn messages, put their LinkedIn connections in a CRM, enrich LinkedIn contacts, or asks "who do I owe a reply on LinkedIn".
+description: Keep track of your LinkedIn network with close to zero risk. Sets up a scheduled Chrome task that downloads your official LinkedIn data archive about every 2 days at a random time, then walks you through the first steps with it - a report of the messages you never answered and the new connections you never talked to, a CRM-ready CSV of every connection with its message history, and how to enrich it. Use when the user wants to automate LinkedIn safely, set up the LinkedIn data export, find unanswered LinkedIn messages, put their LinkedIn connections in a CRM, enrich LinkedIn contacts, or asks "who do I owe a reply on LinkedIn".
 ---
 
 # LinkedIn Network Brain
@@ -28,30 +28,48 @@ Needs Claude in Chrome (the browser extension) signed in to the user's LinkedIn,
 and a way to run a prompt on a schedule (a scheduled task in Claude Desktop or
 Claude Code).
 
-Create a scheduled task that runs every 2 days with this prompt, unchanged except
-for the folder:
+Exports run at a random rhythm of 44 to 52 hours, not at the same time every 2 days,
+so the clicks look like a person and not a clock. A scheduled task cannot wait a
+random time on its own, so it runs every 2 hours and the bundled
+`scripts/export_schedule.py` decides whether this run is the one. Most runs stop
+after that one check, which keeps them cheap. The export lands 44 to 54 hours after
+the previous one.
+
+Create a scheduled task that runs every 2 hours with this prompt. Replace
+`SKILL_DIR` with the absolute path of this skill's folder, and change the archive
+folder in all three places if the user picked another one:
 
 ```text
-Open a new Chrome tab at https://www.linkedin.com/mypreferences/d/download-my-data
-1. If there is a "Download archive" button, download the archive and move the zip to
+1. Run: python3 SKILL_DIR/scripts/export_schedule.py due --folder ~/Downloads/linkedin-archives
+   If it prints anything other than "due", stop here and report nothing.
+2. Open a new Chrome tab at https://www.linkedin.com/mypreferences/d/download-my-data
+3. If there is a "Download archive" button, download the archive and move the zip to
    ~/Downloads/linkedin-archives/, adding today's date (YYYY-MM-DD_) to the start of
    the file name.
-2. Choose the full archive ("larger data archive") and click "Request archive".
+4. Choose the full archive ("larger data archive") and click "Request archive".
    If the page says a request is pending, request nothing.
-3. Close the tab.
+5. Close the tab.
+6. Run: python3 SKILL_DIR/scripts/export_schedule.py done --folder ~/Downloads/linkedin-archives
+   Do this even if a step above failed, so the next attempt waits its turn.
 If LinkedIn asks for a password, a code or a captcha, enter nothing and tell me.
-Click nothing except these two buttons. Finish with one short line: whether an
-archive was downloaded and when a new one was requested.
+Click nothing on LinkedIn except these two buttons. Finish with one short line:
+whether an archive was downloaded, whether a new one was requested, and the next
+export time that step 6 printed.
 ```
+
+To change the rhythm, add `--min-hours` and `--max-hours` to both commands (for
+example 68 and 76 for roughly every 3 days).
 
 Tell the user:
 
 - The first archive arrives by email in about a day, so the first run usually only
-  requests one. From then on every run downloads the last one and requests the next.
-- The task never types anything into LinkedIn, never messages anyone and never
-  touches the inbox. If LinkedIn shows a login or captcha, it stops.
+  requests one. From then on every export downloads the last one and requests the next.
+- The task checks every 2 hours but only touches LinkedIn about every two days, at a
+  different time each time.
+- It never types anything into LinkedIn, never messages anyone and never touches the
+  inbox. If LinkedIn shows a login or captcha, it stops.
 
-If the user has no scheduler, give them the same prompt to run by hand every few days.
+If the user has no scheduler, give them steps 2 to 5 to run by hand every few days.
 
 ## Part 2: first steps with the export
 

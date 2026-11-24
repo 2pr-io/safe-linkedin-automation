@@ -5,7 +5,7 @@
 ## TL;DR
 
 - LinkedIn has to give you a full copy of your own data: every connection, every message, every invite. It is free and it is a built-in feature.
-- This free, open-source Claude skill **downloads that archive for you every 2 days** (two clicks in your own browser, nothing else), then **shows you what to do with it**:
+- This free, open-source Claude skill **downloads that archive for you about every 2 days, at a random time** (two clicks in your own browser, nothing else), then **shows you what to do with it**:
   - who you owe a reply, and which new connections never heard from you;
   - a CRM-ready spreadsheet of your whole network, with message history and a status for every person;
   - how to enrich it (role, fit, company), and where the line is.
@@ -45,7 +45,7 @@ These are what get reach limited and accounts restricted. LinkedIn's own product
 
 **Low risk, and why: this skill's export step**
 
-The export step is technically browser automation: Claude in Chrome clicks for you. We keep it as close to a person as possible: two buttons, on a settings page, once every two days, in your own browser, with your own login. It never types into LinkedIn, never visits profiles, never touches your inbox, and stops the moment LinkedIn asks for a password, a code or a captcha. If you would rather not automate even that, the skill gives you the same steps to do by hand.
+The export step is technically browser automation: Claude in Chrome clicks for you. We keep it as close to a person as possible: two buttons, on a settings page, about once every two days at a random hour (every 44 to 52 hours, never on a fixed clock), in your own browser, with your own login. It never types into LinkedIn, never visits profiles, never touches your inbox, and stops the moment LinkedIn asks for a password, a code or a captcha. If you would rather not automate even that, the skill gives you the same steps to do by hand.
 
 ## What to do with your export
 
@@ -111,7 +111,7 @@ Never enrich by visiting or scraping LinkedIn profiles. Everything starts from t
 
 **2. Ask Claude to set up the export**
 
-Say *"Set up my LinkedIn data export"*. Claude creates a scheduled task that runs every 2 days. You need [Claude in Chrome](https://claude.com/chrome), signed in to your LinkedIn. Pick the full archive: the report and the CRM need your message history. The first archive arrives by email in about a day.
+Say *"Set up my LinkedIn data export"*. Claude creates a scheduled task that checks every 2 hours and exports when the next random 44 to 52 hour slot comes up, so most checks stop right away. You need [Claude in Chrome](https://claude.com/chrome), signed in to your LinkedIn. Pick the full archive: the report and the CRM need your message history. The first archive arrives by email in about a day.
 
 **3. Use it**
 
