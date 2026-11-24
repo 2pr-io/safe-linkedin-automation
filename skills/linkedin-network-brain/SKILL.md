@@ -1,6 +1,6 @@
 ---
 name: linkedin-network-brain
-description: Keep track of your LinkedIn network with zero automation risk. Sets up a scheduled Chrome task that downloads your official LinkedIn data archive every 2 days, then reads the archive and lists the messages you never answered and the new connections you have never talked to. Use when the user wants to automate LinkedIn safely, set up the LinkedIn data export, find unanswered LinkedIn messages, see which new connections they ignore, or asks "who do I owe a reply on LinkedIn".
+description: Keep track of your LinkedIn network with zero automation risk. Sets up a scheduled Chrome task that downloads your official LinkedIn data archive every 2 days, then walks you through the first steps with it - a report of the messages you never answered and the new connections you never talked to, a CRM-ready CSV of every connection with its message history, and how to enrich it. Use when the user wants to automate LinkedIn safely, set up the LinkedIn data export, find unanswered LinkedIn messages, put their LinkedIn connections in a CRM, enrich LinkedIn contacts, or asks "who do I owe a reply on LinkedIn".
 ---
 
 # LinkedIn Network Brain
@@ -13,7 +13,11 @@ a person would click.
 It has two parts:
 
 1. **Export**: a scheduled task that keeps a fresh archive in a local folder.
-2. **Report**: a script that turns the newest archive into a to-do list.
+2. **First steps with the export**: a report that turns the newest archive into a
+   to-do list, a CRM-ready CSV of the whole network, and enrichment.
+
+When the user has just installed the skill, set up Part 1, then offer Part 2 as soon
+as they have an archive.
 
 Archives default to `~/Downloads/linkedin-archives/`. Use another folder if the
 user names one, and use it in both parts.
@@ -49,7 +53,9 @@ Tell the user:
 
 If the user has no scheduler, give them the same prompt to run by hand every few days.
 
-## Part 2: the report
+## Part 2: first steps with the export
+
+### Step 1: the report
 
 Run the bundled script on the archive folder (it picks the newest zip) or on one zip
 or unzipped folder:
@@ -77,8 +83,63 @@ After running it, show the user the report, then offer to draft short replies fo
 the warm section, one per person, using the last message in each conversation
 (the script prints it). Do not send anything: LinkedIn messages are sent by the user.
 
-If the archive has no `messages.csv`, it is the small "fast" archive. Tell the user
-to request the full ("larger") archive next time.
+If the archive has no `messages.csv`, tell the user to request the full ("larger")
+archive next time: the report and the CRM statuses need the message history.
+
+### Step 2: a CRM-ready CSV
+
+```bash
+python3 scripts/crm_export.py ~/Downloads/linkedin-archives/ --out linkedin-crm.csv
+```
+
+One row per connection with: `first_name`, `last_name`, `linkedin_url`, `email`,
+`company`, `position`, `seniority` (founder, c-level, vp, head/director, manager, or
+blank, guessed from the title), `connected_on`, `messages` (count),
+`last_message_at`, `last_message_from` (me or them) and `status`:
+
+- `you owe a reply`: they wrote last and it was more than a "thanks" or an emoji
+- `waiting on them`: you wrote last
+- `closed`: they wrote last with a "thanks" or an emoji
+- `never talked`: no message either way
+
+Rows are sorted with "you owe a reply" first. Tell the user how to import it:
+
+- **HubSpot, Attio, Pipedrive**: import as contacts. Map `linkedin_url` to a LinkedIn
+  URL field and use it as the unique key (or the deduplication field), so the next
+  import updates people instead of creating duplicates.
+- **Notion**: import the CSV as a database, then set `status` and `seniority` as
+  select properties to group by them.
+- **Google Sheets or Excel**: open it, freeze the first row and filter by `status`.
+
+Re-run it on each new archive and re-import with the same key to keep the CRM fresh.
+
+### Step 3: enrich it
+
+Offer these in order, and do only the ones the user wants:
+
+1. **Function and segment.** Read the CSV in chunks of a few hundred rows and add a
+   `function` column (sales, marketing, product, engineering, investing, recruiting,
+   other) and, if the user names their ideal customer, an `icp_fit` column (yes, no,
+   maybe) from `position` and `company`. Write the result to a new file; never
+   overwrite the original.
+2. **Company domain and size.** For the companies that matter to the user (for
+   example the `icp_fit = yes` rows), add the company website. Most CRMs fill in size
+   and industry automatically once a domain is set.
+3. **Missing work emails, carefully.** Only a few percent of connections share an
+   email in the export. If the user wants more, name tools that look up a work email
+   from name plus company (Apollo, Hunter, Clay) and say plainly: use them for people
+   you already have a relationship with, follow the privacy rules where you and they
+   live (GDPR in Europe), and never email the whole network. Do not look up emails
+   yourself by scraping LinkedIn or any site.
+
+Never enrich by visiting LinkedIn profiles, scraping, or using the user's logged-in
+session. Everything starts from the archive.
+
+### What to do next
+
+Suggest a simple weekly habit: reply to everyone in "you owe a reply" first, say one
+line to new connections within a week of connecting (no pitch), and review the
+"waiting on them" rows that went quiet for more than a month.
 
 ## Staying visible to the people in the report
 
