@@ -1,6 +1,10 @@
 {
   "name": "2pr-io",
-  "owner": { "name": "2pr.io", "email": "hi@2pr.io" },
+  "owner": {
+    "name": "2pr.io",
+    "email": "hi@2pr.io"
+  },
+  "description": "Safe LinkedIn automation for Claude, from 2pr.io. Nothing here sends invites, messages or comments for you.",
   "plugins": [
     {
       "name": "safe-linkedin-automation",
