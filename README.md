@@ -7,7 +7,10 @@ Most LinkedIn automation tools act *as you* inside LinkedIn: they send connectio
 This skill works *around* LinkedIn instead:
 
 1. **Export.** Every 2 days, Claude in Chrome opens LinkedIn's own [Download your data](https://www.linkedin.com/mypreferences/d/download-my-data) page and clicks two buttons: download the ready archive, request the next one. It types nothing. If LinkedIn ever asks for a password, a code or a captcha, it stops and tells you.
-2. **Report.** A small Python script reads the archive on your machine and turns it into a to-do list. Nothing is uploaded anywhere.
+2. **First steps with the export.** Small Python scripts read the archive on your machine. Nothing is uploaded anywhere.
+   - a **report** of who you owe a reply and which new connections never heard from you;
+   - a **CRM-ready CSV** of every connection with message history and a relationship status;
+   - guided **enrichment**: function, ideal-customer fit, company domains, and when (not) to look up emails.
 
 ## What the report shows
 
@@ -31,6 +34,25 @@ Those are real numbers from the first run on our founder's account.
 - **Owe a reply (cold inbound):** people who wrote and never got an answer.
 - **New connections you never talked to:** connected in the window, no message either way.
 
+## Your network as a CRM
+
+```bash
+python3 skills/linkedin-network-brain/scripts/crm_export.py ~/Downloads/linkedin-archives/ --out linkedin-crm.csv
+```
+
+One row per connection: name, LinkedIn URL, email (when shared), company, position, seniority, connected on, number of messages, last message date, who wrote last, and a status:
+
+| status | meaning |
+| --- | --- |
+| you owe a reply | they wrote last, and it was more than a "thanks" |
+| waiting on them | you wrote last |
+| closed | they wrote last with a "thanks" or an emoji |
+| never talked | no message either way |
+
+On our founder's 9,895 connections: 1,036 "you owe a reply", 2,231 "waiting on them", 409 "closed", 6,219 "never talked". Only 364 shared an email.
+
+Import it into HubSpot, Attio, Pipedrive, Notion or Google Sheets. Use `linkedin_url` as the unique key, so every new export updates people instead of duplicating them. Then ask Claude to enrich it: function, fit with your ideal customer, company domains. The skill explains when looking up emails is fine and when it is not.
+
 ## Install
 
 **Claude Code**
@@ -44,19 +66,20 @@ Those are real numbers from the first run on our founder's account.
 
 Download `linkedin-network-brain.zip` from the [latest release](https://github.com/2pr-io/safe-linkedin-automation/releases/latest) and upload it under Settings > Capabilities > Skills.
 
-Then ask Claude: *"Set up my LinkedIn data export"* and later *"Who do I owe a reply on LinkedIn?"*
+Then ask Claude: *"Set up my LinkedIn data export"*, and once you have an archive, *"Who do I owe a reply on LinkedIn?"* or *"Turn my LinkedIn connections into a CRM"*.
 
 You need [Claude in Chrome](https://claude.com/chrome) signed in to your LinkedIn for the export, and Python 3 for the report. The script uses only the standard library.
 
-## Run the report by hand
+## Run the scripts by hand
 
 ```bash
 python3 skills/linkedin-network-brain/scripts/network_report.py ~/Downloads/linkedin-archives/
+python3 skills/linkedin-network-brain/scripts/crm_export.py ~/Downloads/linkedin-archives/ --out linkedin-crm.csv
 ```
 
-Options: `--days 30`, `--limit 25`, `--out report.md`. It accepts an archive zip, an unzipped archive folder, or a folder of zips (it picks the newest).
+Report options: `--days 30`, `--limit 25`, `--out report.md`. It accepts an archive zip, an unzipped archive folder, or a folder of zips (it picks the newest).
 
-Request the **full** ("larger") archive. The fast one has no messages.
+Request the **full** ("larger") archive: the report and the CRM statuses need your message history.
 
 ## Why this is safe
 
