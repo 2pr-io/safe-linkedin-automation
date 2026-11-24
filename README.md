@@ -2,6 +2,8 @@
 
 **How to automate LinkedIn without risking your account.**
 
+![How it works: LinkedIn data export, read on your laptop, turned into a report, a CRM file and enrichment, then you act. Bots that act as you are risky; this skill only reads your own file.](assets/how-it-works.svg)
+
 ## TL;DR
 
 - LinkedIn has to give you a full copy of your own data: every connection, every message, every invite. It is free and it is a built-in feature.
